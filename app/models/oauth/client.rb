@@ -1,4 +1,4 @@
-class Client
+class Oauth::Client
   include Mongoid::Document
   include Mongoid::Timestamps
   include SwtkOauth::Document::Base
@@ -91,7 +91,7 @@ class Client
     # Sync all clients with the correct exploded scope when a
     # scope is modified (changed or removed)
     def sync_clients_with_scope(scope)
-      Client.all.each do |client|
+      Oauth::Client.all.each do |client|
         scope_string = client.scope.join(SwtkOauthConfig.settings["scope_separator"])
         client.scope_values = SwtkOauthConfig.normalize_scope(scope_string)
         client.save

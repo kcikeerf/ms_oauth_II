@@ -1,3 +1,5 @@
 Rails.application.routes.draw do
-  mount SwtkServer::API => "/"
+  mount Demo::API => "/"
+  mount Client::API => "/"
+  mount Oauth::API => "/"
 end

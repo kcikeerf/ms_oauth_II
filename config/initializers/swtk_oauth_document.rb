@@ -7,10 +7,15 @@ module SwtkOauth
       #end
 
       def base_uri(request)
-        protocol = request.protocol
+        p request.host_with_port
+        protocol = request.headers["Version"]
         host = request.host_with_port
         name = self.class.name.underscore.pluralize
-        id   = self.id.as_json
+        id   = self.id.to_s
+        p protocol
+        p host
+        p name
+        p id
         uri  = protocol + host + "/" + name + "/" +  id
       end
 
