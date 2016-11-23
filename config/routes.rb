@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  mount Demo::API => "/"
+  mount Welcome::API => "/"
   mount Client::API => "/"
   mount Oauth::API => "/"
 end

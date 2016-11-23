@@ -1,14 +1,24 @@
 class Oauth::OauthToken
   include Mongoid::Document
   include Mongoid::Timestamps
-
-  field :client_uri                           # client identifier (internal)
-  field :resource_owner_uri                   # resource owner identifier
-  field :token                                # access token
-  field :refresh_token                        # refresh token
+  include SwtkOauth::Document::Base
+  
+  field :client_id, type: String
+  field :machine_code, type: String
+  field :access_uri, type: String
+#  field :redirect_uri, type: String                      # client identifier (internal)
+  field :token, type: String                               # access token
+  field :refresh_token, type: String                          # refresh token
   field :scope, type: Array                   # scope accessible with token
   field :expire_at, type: Time, default: nil  # token expiration
+  field :granted_times, type: Integer, default: 0  # tokens granted in the authorization step
+  field :revoked_times, type: Integer, default: 0  # tokens revoked in the authorization step
   field :blocked, type: Time, default: nil    # access token block (if client is blocked)
+
+  index({_id:1}, {background: true})
+  index({access_uri:1}, {unique: true, background: true})
+  index({token:1}, {unique: true, background: true})
+  index({refresh_token:1}, {unique: true, background: true})
 
   before_create :random_token
   before_create :random_refresh_token
@@ -17,6 +27,21 @@ class Oauth::OauthToken
   # validates :client_uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
   # validates :resource_owner_uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
 
+  class << self
+    def get_oauth_token request
+      params = request.params.to_h
+      client_id = params[:client_id]
+      machine_code = params[:machine_code]
+      access_uri = Common::access_uri(client_id, machine_code, request)
+      
+
+      target_oauth_token = self.where({:client_id => client_id, :machine_code => machine_code, :access_uri => access_uri}).first
+      unless target_oauth_token
+        target_oauth_token = self.new(params)
+      end
+      return target_oauth_token
+    end
+  end
 
   # Block the resource owner delegation to a specific client
   def block!
@@ -54,6 +79,7 @@ class Oauth::OauthToken
   def expired?
     self.expire_at < Time.now
   end
+
 
 
   private

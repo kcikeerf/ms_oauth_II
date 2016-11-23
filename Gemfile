@@ -4,7 +4,7 @@ gem 'rails', '4.2.0'
 gem 'sqlite3'
 gem 'mongoid'
 gem 'chronic'
-
+gem 'snowflake-id'
 gem 'grape'
 
 # This gem disables the security feature of strong_params at the model layer, 

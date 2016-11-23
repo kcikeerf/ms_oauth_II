@@ -1,27 +1,33 @@
 class Oauth::Client
   include Mongoid::Document
   include Mongoid::Timestamps
-  include SwtkOauth::Document::Base
 
-  field :uri                                       # client identifier (internal)
-  field :name                                      # client name
-  field :created_from                              # user who created the client
-  field :secret                                    # client secret
-  field :site_uri                                  # client website
-  field :redirect_uri                              # page called after authorization
+  field :name
+  # field :client_id, type: Boolean
+  field :service_type, default: "swtk" # reports, papers
+  field :secret #登录客户端时指定 secret字符串
+  field :swtk_scope, type: Integer, default: 0 # 0: 租户内部用， 1: 跨租户
+  field :published, type: Boolean, default: false #是否公开 
+  field :tenant_uid, type: String, default: "0" # 租户
+  field :machine_code, type: String# 未来动态生成
+  field :created_by, type: String
   field :scope, type: Array, default: []           # raw scope with keywords
   field :scope_values, type: Array, default: []    # scope parsed as array of allowed actions
-  field :info                                      # client additional info
-  field :granted_times, type: Integer, default: 0  # tokens granted in the authorization step
-  field :revoked_times, type: Integer, default: 0  # tokens revoked in the authorization step
+  field :info, type: String
   field :blocked, type: Time, default: nil         # blocks any request from the client
 
-  # attr_accessible :name, :site_uri, :redirect_uri, :info, :scope
+  index({_id:1}, {background: true})
+  index({name:1, host_uid:1}, {unique: true, background: true})
 
-  before_create  :random_secret
+  validates :name, presence: true, uniqueness: true
+  validates :service_type, presence: true
+  validates :secret, presence: true
+  validates :machine_code, presence: true
+
+  before_create  :random_host_uid
   before_destroy :clean
+  # after_create   :construct_client_id
 
-  # validates :name, presence: true
   # validates :uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
   # validates :created_from, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
   # validates :redirect_uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
@@ -102,22 +108,17 @@ class Oauth::Client
 
   private
 
-    # # TODO: use atomic updates
-    # # https://github.com/mongoid/mongoid/commit/aa2c388c71529bf4d987b286acfd861eaac530ce
-    # def block_tokens!
-    #   OauthToken.where(client_uri: uri).map(&:block!)
-    # end
-
-    # def block_authorizations!
-    #   OauthAuthorization.where(client_uri: uri).map(&:block!)
-    # end
-
-    def random_secret
-      self.secret = SecureRandom.hex(SwtkOauthConfig.settings["random_length"])
+    def clean
+      # 删除oauth_token, oauth_authorization中的相关所有记录
+      # to be implemented
+      #
     end
 
-    def clean      # OauthToken.where(client_uri: uri).destroy_all
-      # OauthAuthorization.where(client_uri: uri).destroy_all
+    # def construct_client_id
+    #   self.client_id = self.service_type + self.id.to_s
+    # end
 
+    def random_host_uid
+      self.machine_code=Time.now.to_snowflake.to_s
     end
 end
