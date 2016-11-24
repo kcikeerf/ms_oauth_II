@@ -16,8 +16,8 @@ module ApiHelper
 
   def error_message_json code
     {
-      errcode: "40001",
-      errmsg: I18n.t("error.e40001")
+      errcode: code,
+      errmsg: I18n.t("error.#{code}")
     }
   end
 end

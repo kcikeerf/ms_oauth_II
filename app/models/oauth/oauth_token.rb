@@ -70,8 +70,8 @@ class Oauth::OauthToken
       return target_oauth_token
     end
 
-    def refresh_oauth_token client
-      target_oauth_token = client.oauth_token
+    def refresh_oauth_token refresh_token
+      target_oauth_token = self.where(refresh_token: refresh_token).first
       if target_oauth_token
         # 更新token
         target_oauth_token.refresh_token!
