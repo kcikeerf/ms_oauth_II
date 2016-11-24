@@ -2,9 +2,11 @@ class Oauth::Client
   include Mongoid::Document
   include Mongoid::Timestamps
 
+  has_one :oauth_token, class_name: "Oauth::OauthToken", dependent: :delete
+
   field :name
   # field :client_id, type: Boolean
-  field :service_type, default: "swtk" # reports, papers
+  # field :service_type, default: "swtk" # reports, papers
   field :secret #登录客户端时指定 secret字符串
   field :swtk_scope, type: Integer, default: 0 # 0: 租户内部用， 1: 跨租户
   field :published, type: Boolean, default: false #是否公开 
@@ -17,14 +19,14 @@ class Oauth::Client
   field :blocked, type: Time, default: nil         # blocks any request from the client
 
   index({_id:1}, {background: true})
-  index({name:1, host_uid:1}, {unique: true, background: true})
+  index({name:1, machine_code:1}, {unique: true, background: true})
 
   validates :name, presence: true, uniqueness: true
-  validates :service_type, presence: true
+  validates :machine_code, presence: true, uniqueness: true
+  # validates :service_type, presence: true
   validates :secret, presence: true
-  validates :machine_code, presence: true
-
-  before_create  :random_host_uid
+  
+  # before_create  :random_machine_code
   before_destroy :clean
   # after_create   :construct_client_id
 
@@ -118,7 +120,7 @@ class Oauth::Client
     #   self.client_id = self.service_type + self.id.to_s
     # end
 
-    def random_host_uid
-      self.machine_code=Time.now.to_snowflake.to_s
-    end
+    # def random_machine_code
+    #   self.machine_code=Time.now.to_snowflake.to_s
+    # end
 end

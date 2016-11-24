@@ -21,3 +21,8 @@
 
 en:
   hello: "Hello world"
+  error:
+    e40000: "invalid client"
+    e41000: "invalid access token"
+    e41100: "access token expired!"
+    e41101: "refresh token expired!"

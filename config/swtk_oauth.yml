@@ -1,4 +1,4 @@
-token_expires_in: "1800"
-authorization_expires_in: "150"
+token_expires_in: "1800" # 0.5h
+fresh_token_expires_in: "2592000" # 7 days
 random_length: 32
-scope_separator: " "
+scope_separator: ","

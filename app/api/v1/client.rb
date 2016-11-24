@@ -20,8 +20,6 @@ module Client
           use :admin
         end
         post :list do
-          p ">>>>>#{ENV['remote_addr']}"
-          p ">>>>>#{request.host_with_port}"
           Oauth::Client.all
         end
 
@@ -64,8 +62,6 @@ module Client
           @client = find_client(params)
         end
 
-
-
         # 删除客户端
         desc 'destroy'
         params do
@@ -88,7 +84,10 @@ module Client
           use :admin, :client
         end
         post :verify do
-          @client
+          {
+            name: @client.name,
+            client_id: @client.id.to_s
+          }
         end
 
         # 公开客户端

@@ -10,7 +10,14 @@ module ApiHelper
     if target_client
       return target_client
     else
-      error!({message: 'Client Is Invalid'}, 403)
+      error!(error_message_json("e40000"), 403)
     end
+  end
+
+  def error_message_json code
+    {
+      errcode: "40001",
+      errmsg: I18n.t("error.e40001")
+    }
   end
 end

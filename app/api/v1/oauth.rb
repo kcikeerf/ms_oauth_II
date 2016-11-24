@@ -16,41 +16,50 @@ module Oauth
       # 返回 access token
       desc 'get access token'
       params do
-        requires :response_type, type: String, values: -> {["token"]}
-        requires :access_uri, type: String
+        requires :grant_type, type: String, values: -> {["clientcredentials"]}
         optional :scope, type: String
-        optional :state, type: String
-        use :admin, :client
+        use :client
       end
-      get :get_access_token do
-        if @client.published
-          Oauth::OauthToken.get_access_token request
+      post :get_access_token do
+        if true #@client.published
+          target_token = Oauth::OauthToken.get_oauth_token(@client, params)
+          target_token.access_token_resp_json
         else
-          status 403
-          {message: "Invalid Client!"}
+          # to be implemented
         end
+      end
+
+      # 验证 access token
+      desc 'refresh access token'
+      params do
+        requires :grant_type, type: String, values: -> {["refresh_token"]}
+        requires :refresh_token, type: String, allow_blank: false
+        use :client
+      end
+      post :refresh_access_token do
+        target_token.where()
       end
 
       # 验证 access token
       desc 'verify access token'
       params do
         requires :access_token, type: String, allow_blank: false
-        #requires :
+        use :client
       end
       post :verify_access_token do
 
       end
 
-      desc 'others info'
-      # params do
-      #   optional :beer
-      #   optional :wine
-      #   optional :juice
-      #   all_or_none_of :beer, :wine, :juice, message: "all params are required or none is required"
-      # end
-      get :others do
-        {data: "others"}
+      # 验证 access token
+      desc 'destroy access token'
+      params do
+        requires :access_token, type: String, allow_blank: false
+        use :client
       end
+      post :destroy_access_token do
+
+      end
+
     end
   end
 end
