@@ -91,13 +91,13 @@ class Oauth::OauthToken
           refresh_token: self.refresh_token
         }
       else
-        Common::error_message_json("e41000")
+        Common::message_json("error", "e41000")
       end
     else
       if refresh_token_expired_in > 0
-        Common::error_message_json("e41100")
+        Common::message_json("error", "e41100")
       else
-        Common::error_message_json("e41000")
+        Common::message_json("error", "e41000")
       end
     end
   end

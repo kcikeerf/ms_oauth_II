@@ -23,8 +23,8 @@ module Oauth
         end
         post :get_access_token do
           if true #@client.published
-            target_token = Oauth::OauthToken.get_oauth_token(@client, params)
-            target_token.access_token_resp_json
+            result = Oauth::OauthToken.get_oauth_token(@client, params)
+            result.access_token_resp_json
           else
             # to be implemented
           end
@@ -37,7 +37,13 @@ module Oauth
           use :client
         end
         post :verify_access_token do
-
+          target_token = Oauth::OauthToken.where(token: params[:access_token]).first
+          if target_token.token_available?
+            message_json("info", "i11000")
+          else
+            status 401
+            message_json("error", "e41000")
+          end
         end
 
         # 验证 access token
@@ -60,8 +66,8 @@ module Oauth
           #use :client
         end
         post :refresh_access_token do
-          target_token = Oauth::OauthToken.refresh_oauth_token(params[:refresh_token])
-          target_token.access_token_resp_json
+          result = Oauth::OauthToken.refresh_oauth_token(params[:refresh_token])
+          result.access_token_resp_json
         end
       end
     end

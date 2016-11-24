@@ -1,10 +1,10 @@
 module Common
   module_function
 
-  def error_message_json code
+  def message_json type, code
     {
       errcode: code,
-      errmsg: I18n.t("error.#{code}")
+      errmsg: I18n.t("#{type}.#{code}")
     }
   end
 end

@@ -21,6 +21,10 @@
 
 en:
   hello: "Hello world"
+  info:
+    i10000: "client is avaiable."
+    i11000: "access token is avaiable."
+    i11100: "refresh token is avaiable."
   error:
     e40000: "invalid client"
     e41000: "invalid access token"

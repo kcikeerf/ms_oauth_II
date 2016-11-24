@@ -10,14 +10,14 @@ module ApiHelper
     if target_client
       return target_client
     else
-      error!(error_message_json("e40000"), 403)
+      error!(message_json("error","e40000"), 401)
     end
   end
 
-  def error_message_json code
+  def message_json type, code
     {
-      errcode: code,
-      errmsg: I18n.t("error.#{code}")
+      code: code,
+      message: I18n.t("#{type}.#{code}")
     }
   end
 end
