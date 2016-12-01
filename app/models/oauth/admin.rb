@@ -1,3 +1,5 @@
+# -*- coding: UTF-8 -*-
+
 class Oauth::Admin
   include Mongoid::Document
   include Mongoid::Timestamps

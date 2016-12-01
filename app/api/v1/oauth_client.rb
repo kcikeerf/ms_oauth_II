@@ -1,4 +1,4 @@
-module Oauth
+module OauthClient
   class API < Grape::API
     version 'v1', using: :path #/api/v1/<resource>/<action>
     format :json
@@ -7,7 +7,7 @@ module Oauth
     helpers ApiHelper
     helpers SharedParamsHelper
 
-    resource :oauth do
+    resource :oauth_client do
       group do
         before do
           @client = find_client(params)
@@ -23,7 +23,7 @@ module Oauth
         end
         post :get_access_token do
           if true #@client.published
-            result = Oauth::OauthToken.get_oauth_token(@client, params)
+            result = Oauth::OauthClientToken.get_oauth_token(@client, params)
             result.access_token_resp_json
           else
             # to be implemented
@@ -37,7 +37,7 @@ module Oauth
           use :client
         end
         post :verify_access_token do
-          target_token = Oauth::OauthToken.where(token: params[:access_token]).first
+          target_token = Oauth::OauthClientToken.where(token: params[:access_token]).first
           if target_token.token_available?
             message_json("info", "i11000")
           else
@@ -66,7 +66,7 @@ module Oauth
           #use :client
         end
         post :refresh_access_token do
-          result = Oauth::OauthToken.refresh_oauth_token(params[:refresh_token])
+          result = Oauth::OauthClientToken.refresh_oauth_token(params[:refresh_token])
           result.access_token_resp_json
         end
       end

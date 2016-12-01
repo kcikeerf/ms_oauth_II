@@ -8,6 +8,12 @@ module SharedParamsHelper
   params :client do
     requires :client_id, type: String
     requires :secret, type: String
-    requires :machine_code, type: String
+    optional :machine_code, type: String
   end
+
+  params :client_basic do
+    requires :client_id, type: String
+    requires :secret, type: String
+  end
+
 end

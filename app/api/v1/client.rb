@@ -28,7 +28,7 @@ module Client
         params do
           requires :name, type: String, allow_blank: false
           requires :secret, type: String, allow_blank: false
-          requires :machine_code, type: String, allow_blank: false
+          optional :machine_code, type: String, allow_blank: false
           optional :swtk_scope, type: String
           optional :published, type: Boolean
           optional :tenant_uid, type: String

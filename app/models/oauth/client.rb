@@ -1,8 +1,11 @@
+# -*- coding: UTF-8 -*-
+
 class Oauth::Client
   include Mongoid::Document
   include Mongoid::Timestamps
 
-  has_one :oauth_token, class_name: "Oauth::OauthToken", dependent: :delete
+  has_one :oauth_client_token, class_name: "Oauth::OauthClientToken", dependent: :delete
+  # has_many :oauth_authorizations, class_name: "Oauth::OauthAuthorization", dependent: :delete
 
   field :name
   # field :client_id, type: Boolean
@@ -11,7 +14,8 @@ class Oauth::Client
   field :swtk_scope, type: Integer, default: 0 # 0: 租户内部用， 1: 跨租户
   field :published, type: Boolean, default: false #是否公开 
   field :tenant_uid, type: String, default: "0" # 租户
-  field :machine_code, type: String# 未来动态生成
+  field :machine_code, type: String # 未来动态生成
+  field :machine_code_required, type: Boolean, default: false # 机器码是否必须 
   field :created_by, type: String
   field :scope, type: Array, default: []           # raw scope with keywords
   field :scope_values, type: Array, default: []    # scope parsed as array of allowed actions
@@ -22,7 +26,7 @@ class Oauth::Client
   index({name:1, machine_code:1}, {unique: true, background: true})
 
   validates :name, presence: true, uniqueness: true
-  validates :machine_code, presence: true, uniqueness: true
+  #validates :machine_code, presence: true, uniqueness: true
   # validates :service_type, presence: true
   validates :secret, presence: true
   
@@ -39,7 +43,7 @@ class Oauth::Client
   def block!
     self.blocked = Time.now
     self.save
-    OauthToken.block_client!(self.uri)
+    OauthClientToken.block_client!(self.uri)
     OauthAuthorization.block_client!(self.uri)
   end
 

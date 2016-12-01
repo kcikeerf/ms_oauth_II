@@ -1,14 +1,16 @@
-class Oauth::OauthToken
+# -*- coding: UTF-8 -*-
+
+class Oauth::OauthPageToken
   include Mongoid::Document
   include Mongoid::Timestamps
-#  include SwtkOauth::Document::Base
+  # include SwtkOauth::Document::Base
 
-  belongs_to :client, class_name: "Oauth::Client"
+  # belongs_to :client, class_name: "Oauth::Client"
   
-  # field :client_id, type: String
+  field :client_id, type: String
   # field :machine_code, type: String
   # field :access_uri, type: String
-  # field :redirect_uri, type: String   #无转向链接，暂作保留
+  field :redirect_uri, type: String   #无转向链接，暂作保留
   field :scope, type: String #限定访问范围
   field :scope_values, type: Array, default: []    # scope parsed as array of allowed actions
   field :token, type: String                               # access token
@@ -31,47 +33,18 @@ class Oauth::OauthToken
 
   # scope :by_redirect_uri, -> (uri) { where(redirect_uri: uri) }
 
-  # before_save :random_token
-  # before_save :create_token_expiration
-  # before_create :construct_scope_values
-  # before_create :random_refresh_token
-  # before_create :create_refresh_token_expiration
+  before_create :random_token
+  before_create :create_token_expiration
+  before_create :random_refresh_token
+  before_create :create_refresh_token_expiration
+  before_create :construct_scope_values
 
   # validates :client_uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
   # validates :resource_owner_uri, presence: true, format: { with: URI::regexp(%w(http https)), message: "invalid url" }
 
   class << self
-    def get_oauth_token client, args      
-      target_oauth_token = client.oauth_token
-      if target_oauth_token
-        if target_oauth_token.token_available?
-          # do nothing
-        elsif refreshable?
-          # 更新token
-          target_oauth_token.refresh_token!
-        else
-          # 更新refresh token
-          target_oauth_token.refresh_token!
-          target_oauth_token.refresh_fresh_token!
-        end
-      else
-        options = {
-          :scope => args[:scope]
-        }
-        target_oauth_token = self.new(options)
-        target_oauth_token.construct_scope_values
-        target_oauth_token.random_token
-        target_oauth_token.create_token_expiration
-        target_oauth_token.random_refresh_token
-        target_oauth_token.create_refresh_token_expiration
-        target_oauth_token.client = client
-        target_oauth_token.save!
-      end
-      return target_oauth_token
-    end
-
-    def refresh_oauth_token refresh_token
-      target_oauth_token = self.where(refresh_token: refresh_token).first
+    def refresh_oauth_token token, refresh_token
+      target_oauth_token = self.where(token: token, refresh_token: refresh_token).first
       if target_oauth_token
         # 更新token
         target_oauth_token.refresh_token!
@@ -86,8 +59,9 @@ class Oauth::OauthToken
     if access_token_expired_in > 0
       if refresh_token_expired_in > 0
         {
+          token_type: "bearer",
           access_token: self.token,
-          access_token_expired_in: access_token_expired_in,
+          expired_in: access_token_expired_in,
           refresh_token: self.refresh_token
         }
       else
@@ -160,6 +134,10 @@ class Oauth::OauthToken
   end
 
   def construct_scope_values
-    self.scope_values = self.scope.split(SwtkOauthConfig.settings["scope_separator"])
+    self.scope_values = self.scope.split(SwtkOauthConfig.settings["scope_separator"]) if self.scope.is_a? Array
   end
+
+  # def create_redirect_uri
+  # 	self.redirect_uri = Common::construct_redirect_uri
+  # end
 end

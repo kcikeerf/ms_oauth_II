@@ -1,4 +1,7 @@
+code_expires_in: "600" # 10 minutes
 token_expires_in: "1800" # 0.5h
 fresh_token_expires_in: "2592000" # 7 days
+random_code_length: 32
 random_length: 32
+random_page_length: 128
 scope_separator: ","
